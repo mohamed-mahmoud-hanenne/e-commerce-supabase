@@ -53,19 +53,34 @@ export class Seller {
     this.loading.set(true);
     let imageUrl = this.newProduct.image_url;
 
-    // 1. Si un fichier est sélectionné, on l'uploade d'abord
+    // 1. Upload de l'image si elle existe
     if (this.selectedFile) {
       imageUrl = await this.supabaseService.uploadProductImage(this.selectedFile);
     }
 
-    // 2. On crée le produit avec l'URL de l'image (réelle ou par défaut)
-    await this.supabaseService.addProduct({ ...this.newProduct, image_url: imageUrl });
-    
-    alert("Produit publié !");
+    // 2. Création du produit dans la base
+    await this.supabaseService.addProduct({ 
+      ...this.newProduct, 
+      image_url: imageUrl 
+    });
+
+    // 3. FERMETURE DU MODAL BOOTSTRAP
+    // On récupère l'instance du modal par son ID HTML
+    const modalElement = document.getElementById('addProductModal');
+    if (modalElement) {
+      const modalInstance = (window as any).bootstrap.Modal.getInstance(modalElement);
+      modalInstance?.hide();
+    }
+
+    // 4. Rafraîchir la liste et nettoyer
+    await this.loadMyProducts(); // Recharge la table HTML
     this.selectedFile = null;
-    // Réinitialisation du formulaire...
+    this.newProduct = { name: '', price: 0, description: '', image_url: '', category_id: '' };
+    
+    alert("Produit publié avec succès !");
+    
   } catch (error: any) {
-    alert(error.message);
+    alert("Erreur : " + error.message);
   } finally {
     this.loading.set(false);
   }
