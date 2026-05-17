@@ -6,10 +6,11 @@ import { Auth } from './components/auth/auth';
 import { Orders } from './components/orders/orders';
 import { Profile } from './components/profile/profile';
 import { Seller } from './components/seller/seller';
+import { Footer } from './components/footer/footer';
 
 @Component({
   selector: 'app-root',
-  imports: [Navbar, RouterOutlet, Auth],
+  imports: [Navbar, RouterOutlet, Auth, Footer],
   templateUrl: './app.html',
   styleUrl: './app.scss'
 })
