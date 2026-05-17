@@ -1,0 +1,186 @@
+<nav class="navbar navbar-expand-lg navbar-light bg-white shadow-sm sticky-top">
+  <div class="container">
+    <!-- Logo / Nom de la Marketplace -->
+    <a class="navbar-brand font-weight-bold text-primary" href="#">
+      <span class="fw-bold fs-4 text-dark">AI</span
+      ><span class="fw-bold fs-4 text-primary">Market</span>
+    </a>
+
+    <!-- Bouton Mobile -->
+    <button
+      class="navbar-toggler"
+      type="button"
+      data-bs-toggle="collapse"
+      data-bs-target="#navbarNav"
+    >
+      <span class="navbar-toggler-icon"></span>
+    </button>
+
+    <!-- Liens de navigation -->
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav me-auto ms-4">
+        <li class="nav-item">
+          <a
+            class="nav-link fw-medium"
+            routerLink="/"
+            routerLinkActive="active"
+            style="cursor: pointer"
+            >Boutique</a
+          >
+        </li>
+        <li class="nav-item">
+          <a
+            class="nav-link fw-medium"
+            routerLink="/vendre"
+            routerLinkActive="active"
+            style="cursor: pointer"
+          >
+            {{ supabaseService.userProfile()?.is_seller ? 'Vendre un produit' : 'Devenir Vendeur' }}
+          </a>
+        </li>
+        @if (isAdmin()) {
+          <li class="nav-item">
+            <a class="nav-link text-danger fw-bold" routerLink="/admin" routerLinkActive="active"
+              >🛡️ Admin</a
+            >
+          </li>
+        }
+      </ul>
+
+      <!-- Actions : Panier et Profil -->
+      <div class="d-flex align-items-center gap-3">
+        <!-- Bouton Panier mis à jour -->
+        <button
+          class="btn btn-outline-dark position-relative rounded-pill px-3"
+          type="button"
+          data-bs-toggle="offcanvas"
+          data-bs-target="#cartOffcanvas"
+        >
+          🛒 Panier
+          @if (cartCount() > 0) {
+            <span
+              class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+            >
+              {{ cartCount() }}
+            </span>
+          }
+        </button>
+
+        @if (isLoggedIn()) {
+          <div class="d-flex align-items-center gap-2">
+            <button
+              class="btn btn-sm btn-outline-primary rounded-pill px-3"
+              routerLink="/commandes"
+              routerLinkActive="active"
+            >
+              📋 Commandes
+            </button>
+
+            <div class="d-flex align-items-center gap-2">
+              <button
+                class="btn btn-sm btn-light border rounded-pill p-1 d-flex align-items-center gap-2"
+                routerLink="/profil"
+                routerLinkActive="active"
+              >
+                @if (supabaseService.userProfile()?.avatar_url) {
+                  <img
+                    [src]="supabaseService.userProfile().avatar_url"
+                    class="rounded-circle"
+                    style="width: 28px; height: 28px; object-fit: cover"
+                  />
+                } @else {
+                  <span class="ms-2">👤</span>
+                }
+                <span class="me-2 small fw-bold text-truncate" style="max-width: 80px">
+                  {{ supabaseService.userProfile()?.full_name || 'Mon Profil' }}
+                </span>
+              </button>
+            </div>
+
+            <button (click)="logout()" class="btn btn-outline-danger btn-sm rounded-pill px-3">
+              Déconnexion
+            </button>
+          </div>
+        } @else {
+          <!-- Remplacer l'ancien bouton Connexion par celui-ci -->
+          <button
+            class="btn btn-primary rounded-pill px-4"
+            data-bs-toggle="modal"
+            data-bs-target="#authModal"
+          >
+            Connexion
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+</nav>
+<!-- Le Menu Latéral du Panier (Bootstrap Offcanvas) -->
+<div
+  class="offcanvas offcanvas-end"
+  tabindex="-1"
+  id="cartOffcanvas"
+  aria-labelledby="cartOffcanvasLabel"
+>
+  <div class="offcanvas-header border-bottom">
+    <h5 class="offcanvas-title fw-bold" id="cartOffcanvasLabel">Mon Panier ({{ cartCount() }})</h5>
+    <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+  </div>
+
+  <div class="offcanvas-body d-flex flex-column">
+    @if (cartItems().length === 0) {
+      <div class="text-center my-auto">
+        <h5 class="text-muted">Votre panier est vide</h5>
+        <p class="small text-secondary">Ajoutez des produits pour commencer vos achats.</p>
+      </div>
+    } @else {
+      <!-- Liste des articles -->
+      <div class="flex-grow-1 overflow-auto">
+        @for (item of cartItems(); track item.id) {
+          <div class="d-flex align-items-center mb-3 pb-3 border-bottom">
+            <img
+              [src]="item.image_url"
+              alt="{{ item.name }}"
+              class="img-fluid rounded"
+              style="width: 60px; height: 60px; object-fit: contain; background: #f8f9fa"
+            />
+            <div class="ms-3 flex-grow-1">
+              <h6 class="mb-0 fw-bold small">{{ item.name }}</h6>
+              <span class="text-primary fw-medium small">{{ item.price }} €</span>
+
+              <!-- Sélecteur de quantité -->
+              <div class="d-flex align-items-center mt-2">
+                <button (click)="decrement(item.id)" class="btn btn-sm btn-light border px-2 py-0">
+                  -
+                </button>
+                <span class="mx-2 small fw-bold">{{ item.quantity }}</span>
+                <button (click)="increment(item)" class="btn btn-sm btn-light border px-2 py-0">
+                  +
+                </button>
+              </div>
+            </div>
+            <button (click)="remove(item.id)" class="btn btn-sm text-danger ms-2">🗑️</button>
+          </div>
+        }
+      </div>
+
+      <!-- Résumé financier et bouton de commande -->
+      <div class="border-top pt-3 mt-auto">
+        <div class="d-flex justify-content-between mb-3">
+          <span class="fw-bold">Total :</span>
+          <span class="fw-bold text-primary fs-5">{{ totalPrice() | number: '1.2-2' }} €</span>
+        </div>
+        <!-- Mettre à jour le bouton avec le (click)="checkout()" si l'utilisateur est connecté -->
+        <button
+          class="btn btn-primary w-100 rounded-pill py-2 shadow-sm"
+          [disabled]="cartItems().length === 0"
+          [attr.data-bs-toggle]="!isLoggedIn() ? 'modal' : null"
+          [attr.data-bs-target]="!isLoggedIn() ? '#authModal' : null"
+          (click)="isLoggedIn() ? checkout() : null"
+        >
+          {{ isLoggedIn() ? 'Confirmer la commande' : 'Se connecter pour commander' }}
+        </button>
+      </div>
+    }
+  </div>
+</div>

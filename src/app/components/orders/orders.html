@@ -1,0 +1,48 @@
+<div class="container mt-5">
+  <h2 class="fw-bold mb-4">Mes Commandes</h2>
+
+  @if (loading()) {
+    <div class="text-center">
+      <div class="spinner-border text-primary" role="status"></div>
+    </div>
+  } @else if (orders().length === 0) {
+    <div class="alert alert-info">Vous n'avez pas encore passé de commande.</div>
+  } @else {
+    <div class="row">
+      @for (order of orders(); track order.id) {
+        <div class="col-12 mb-3">
+          <div class="card border-0 shadow-sm rounded-4">
+            <div class="card-body">
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <div>
+                  <span class="text-muted small">Commande #{{ order.id.substring(0,8) }}</span>
+                  <h6 class="mb-0 fw-bold">{{ order.created_at | date:'dd/MM/yyyy HH:mm' }}</h6>
+                </div>
+                <span class="badge rounded-pill" 
+                      [ngClass]="{'bg-warning text-dark': order.status === 'pending', 'bg-success': order.status === 'completed'}">
+                  {{ order.status === 'pending' ? 'En attente' : 'Terminée' }}
+                </span>
+              </div>
+
+              <div class="border-top pt-2">
+                <p class="small text-secondary mb-1">Articles :</p>
+                <ul class="list-unstyled">
+                  @for (item of order.order_items; track item) {
+                    <li class="small">
+                      {{ item.quantity }}x {{ item.products.name }} — <span class="fw-medium">{{ item.unit_price }} €</span>
+                    </li>
+                  }
+                </ul>
+              </div>
+
+              <div class="d-flex justify-content-between align-items-center mt-3 border-top pt-2">
+                <span class="fw-bold">Total</span>
+                <span class="fw-bold text-primary fs-5">{{ order.total_amount }} €</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

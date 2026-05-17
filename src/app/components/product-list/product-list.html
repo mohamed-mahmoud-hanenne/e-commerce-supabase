@@ -1,0 +1,66 @@
+<div class="container py-5">
+  <!-- En-tête de la page -->
+  <div class="row mb-5 text-center">
+    <div class="col-lg-8 mx-auto">
+      <h1 class="display-4 font-weight-bold">Notre Catalogue</h1>
+      <p class="lead text-muted">
+        Découvrez nos produits exclusifs récupérés en temps réel via Supabase.
+      </p>
+      <hr class="w-25 mx-auto" />
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="d-flex justify-content-center my-5">
+      <div class="spinner-border text-primary" role="status">
+        <span class="visually-hidden">Chargement...</span>
+      </div>
+    </div>
+  } @else {
+    <!-- Grille de produits -->
+    <div class="row g-4">
+      @for (product of products(); track product.id) {
+        <div class="col-12 col-md-6 col-lg-4">
+          <div class="card h-100 shadow-sm border-0 transition-hover">
+            <!-- Badge Catégorie -->
+            <span class="badge bg-primary position-absolute m-3" style="top: 0; right: 0">
+              {{ product.categories?.name }}
+            </span>
+
+            <!-- Image du produit -->
+            <img
+              [src]="product.image_url"
+              class="card-img-top"
+              style="height: 200px; object-fit: cover"
+              alt="{{ product.name }}"
+            />
+
+            <div class="card-body d-flex flex-column">
+              <h5 class="card-title mb-2">{{ product.name }}</h5>
+              <p class="card-text text-muted small flex-grow-1">
+                {{ product.description | slice: 0 : 100
+                }}{{ product.description.length > 100 ? '...' : '' }}
+              </p>
+
+              <div class="d-flex justify-content-between align-items-center mt-3">
+                <span class="h4 mb-0 text-dark font-weight-bold">{{ product.price }} €</span>
+                <button class="btn btn-outline-dark btn-sm rounded-pill px-3">
+                  <i class="bi bi-cart-plus me-1"></i> Détails
+                </button>
+              </div>
+            </div>
+
+            <div class="card-footer bg-white border-top-0 pb-3">
+              <button
+                (click)="addToCart(product)"
+                class="btn btn-primary w-100 rounded-pill shadow-sm"
+              >
+                Ajouter au panier
+              </button>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

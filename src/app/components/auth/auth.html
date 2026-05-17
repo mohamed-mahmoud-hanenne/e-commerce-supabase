@@ -1,0 +1,53 @@
+<!-- Fenêtre Modale Bootstrap -->
+<div class="modal fade" id="authModal" tabindex="-1" aria-labelledby="authModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content border-0 shadow rounded-4 p-3">
+      
+      <!-- En-tête de la modale avec bouton de fermeture -->
+      <div class="modal-header border-0 pb-0">
+        <h4 class="modal-title fw-bold w-100 text-center ms-4" id="authModalLabel">
+          {{ isLoginMode() ? 'Connexion' : 'Créer un compte' }}
+        </h4>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" id="closeAuthModal"></button>
+      </div>
+
+      <div class="modal-body">
+        <!-- Messages d'alerte -->
+        @if (errorMessage()) {
+          <div class="alert alert-danger small py-2" role="alert">{{ errorMessage() }}</div>
+        }
+        @if (successMessage()) {
+          <div class="alert alert-success small py-2" role="alert">{{ successMessage() }}</div>
+        }
+
+        <!-- Formulaire -->
+        <form (ngSubmit)="onSubmit()">
+          <div class="mb-3">
+            <label class="form-label small fw-medium">Adresse Email</label>
+            <input type="email" [(ngModel)]="email" name="email" class="form-control rounded-pill px-3" placeholder="nom@exemple.com" required>
+          </div>
+          
+          <div class="mb-4">
+            <label class="form-label small fw-medium">Mot de passe</label>
+            <input type="password" [(ngModel)]="password" name="password" class="form-control rounded-pill px-3" placeholder="••••••••" required>
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 rounded-pill py-2 shadow-sm mb-2" [disabled]="loading()">
+            @if (loading()) {
+              <span class="spinner-border spinner-border-sm me-2"></span>
+            }
+            {{ isLoginMode() ? 'Se connecter' : "S'inscrire" }}
+          </button>
+        </form>
+
+        <!-- Liens de basculement -->
+        <div class="text-center mt-3">
+          <button (click)="toggleMode()" class="btn btn-link btn-sm text-decoration-none text-secondary">
+            {{ isLoginMode() ? "Nouveau sur la marketplace ? Créez un compte" : "Déjà un compte ? Connectez-vous" }}
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

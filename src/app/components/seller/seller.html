@@ -1,0 +1,114 @@
+<div class="container mt-5">
+  @if (!supabaseService.userProfile()?.is_seller) {
+    <div class="card border-0 shadow text-center p-5 rounded-4">
+      <h2 class="fw-bold">Prêt à vendre sur AI Market ?</h2>
+      <p class="text-muted">
+        Rejoignez notre communauté de vendeurs et commencez à gagner de l'argent.
+      </p>
+      <button
+        (click)="handleBecomeSeller()"
+        class="btn btn-primary btn-lg rounded-pill px-5 mt-3"
+        [disabled]="loading()"
+      >
+        Activer mon compte vendeur 🚀
+      </button>
+    </div>
+  } @else {
+    <div class="row">
+      <div class="col-md-6 mx-auto">
+        <div class="card border-0 shadow rounded-4 p-4">
+          <h3 class="fw-bold mb-4">Mettre un produit en vente</h3>
+          <form (ngSubmit)="onSubmit()">
+            <div class="mb-3">
+              <label class="small fw-bold">Nom du produit</label>
+              <input
+                type="text"
+                [(ngModel)]="newProduct.name"
+                name="name"
+                class="form-control rounded-pill"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="small fw-bold">Prix (€)</label>
+              <input
+                type="number"
+                [(ngModel)]="newProduct.price"
+                name="price"
+                class="form-control rounded-pill"
+                required
+              />
+            </div>
+            <div class="mb-3">
+              <label class="small fw-bold text-secondary">Catégorie du produit</label>
+              <select
+                [(ngModel)]="newProduct.category_id"
+                name="category_id"
+                class="form-select rounded-pill"
+              >
+                @for (cat of categories(); track cat.id) {
+                  <option [value]="cat.id">{{ cat.name }}</option>
+                }
+              </select>
+            </div>
+            <div class="mb-3">
+              <label class="small fw-bold">Image du produit</label>
+              <input
+                type="file"
+                (change)="onFileSelected($event)"
+                class="form-control rounded-pill"
+                accept="image/*"
+              />
+            </div>
+            <div class="mb-4">
+              <label class="small fw-bold">Description</label>
+              <textarea
+                [(ngModel)]="newProduct.description"
+                name="description"
+                class="form-control rounded-4"
+                rows="3"
+              ></textarea>
+            </div>
+            <button
+              type="submit"
+              class="btn btn-success w-100 rounded-pill py-2"
+              [disabled]="loading()"
+            >
+              {{ loading() ? 'Publication...' : "Publier l'annonce" }}
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+  }
+</div>
+
+<div class="mt-5 pt-4 border-top">
+  <h3 class="fw-bold mb-4">Mes produits en vente</h3>
+  <div class="table-responsive shadow-sm rounded-4">
+    <table class="table table-hover bg-white mb-0">
+      <thead class="table-light">
+        <tr>
+          <th>Image</th>
+          <th>Nom</th>
+          <th>Prix</th>
+          <th>Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        @for (product of myProducts(); track product.id) {
+          <tr>
+            <td><img [src]="product.image_url" width="40" class="rounded"></td>
+            <td class="align-middle">{{ product.name }}</td>
+            <td class="align-middle fw-bold">{{ product.price }} €</td>
+            <td class="align-middle">
+              <button (click)="onDeleteProduct(product.id)" class="btn btn-sm btn-outline-danger rounded-pill">
+                🗑️ Supprimer
+              </button>
+            </td>
+          </tr>
+        }
+      </tbody>
+    </table>
+  </div>
+</div>
